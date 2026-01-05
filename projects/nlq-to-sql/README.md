@@ -1,82 +1,181 @@
-# NLQ-to-SQL: Natural Language Query to SQL
+# 🧠 NLQ-to-SQL  
+### Natural Language Query to SQL Analytics System
 
-Ein System, das Fragen in natürlicher Sprache in SQL-Abfragen umwandelt, diese ausführt und die Ergebnisse erklärt.
+Ein **produktionsnahes Analytics-System**, das Fragen in natürlicher Sprache in **sichere SQL-Abfragen** übersetzt, diese auf einer relationalen Datenbank ausführt und die Ergebnisse **kontextbewusst in verständlicher Business-Sprache erklärt**.
 
-## Features
+Das Projekt zeigt, wie **Large Language Models (LLMs)** verantwortungsvoll und strukturiert in **Data-Analytics-Workflows** integriert werden können – mit Fokus auf **Architektur, Sicherheit und Nachvollziehbarkeit**.
 
-- 🤖 **Natural Language Processing**: Konvertiert Fragen in natürlicher Sprache zu SQL
-- 🔒 **SQL-Validierung**: Sicherheitsprüfung (nur SELECT-Abfragen)
-- 📊 **DuckDB Integration**: Verwendet DuckDB als Analytics-Datenbank
-- 💬 **Ergebnis-Erklärung**: Erklärt SQL-Ergebnisse in verständlicher Sprache
+---
 
-## Installation
+## 🎯 Ziel des Projekts
 
-1. **Dependencies installieren:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Viele LLM-Demos bleiben bei einfachen Prompt-Beispielen stehen.  
+Dieses Projekt geht bewusst einen Schritt weiter und demonstriert:
 
-2. **Datenbank initialisieren:**
-   ```bash
-   python db/init_db.py
-   ```
+- ✅ deterministische **NL → SQL** Generierung  
+- ✅ saubere Trennung von Verantwortlichkeiten  
+- ✅ sichere Datenbankinteraktion  
+- ✅ **erklärbare Ergebnisse** statt reiner Zahlen  
 
-3. **Umgebungsvariablen konfigurieren:**
-   
-   Erstelle eine `.env` Datei im Projektordner:
-   ```env
-   AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
-   AZURE_OPENAI_API_KEY=your-api-key-here
-   AZURE_OPENAI_DEPLOYMENT=your-deployment-name
-   AZURE_OPENAI_API_VERSION=2024-02-15-preview
-   ```
-   
-   **Hinweis:** `AZURE_OPENAI_API_VERSION` ist optional und verwendet standardmäßig `2024-02-15-preview`, falls nicht gesetzt.
+---
 
-## Azure OpenAI Setup
+## ✨ Features
 
-1. Gehe zum [Azure Portal](https://portal.azure.com)
-2. Erstelle eine **Azure OpenAI Resource** (falls noch nicht vorhanden)
-3. Erstelle ein **Deployment** (z.B. GPT-4 oder GPT-3.5-turbo)
-4. Kopiere die folgenden Werte:
-   - **Endpoint**: Findest du unter "Keys and Endpoint" → Endpoint URL
-   - **API Key**: Findest du unter "Keys and Endpoint" → Key 1 oder Key 2
-   - **Deployment Name**: Der Name deines Deployments (z.B. "gpt-4" oder "gpt-35-turbo")
-   - **API Version**: Standardmäßig `2024-02-15-preview` (kann in `.env` überschrieben werden)
+### 🤖 Natural Language → SQL
+Übersetzt Business-Fragen zuverlässig in SQL-Abfragen.
 
-## Verwendung
+### 🔒 SQL-Validierung & Guardrails
+- nur `SELECT` Statements erlaubt  
+- automatische Query-Limits  
+- Schutz vor unerwünschten Operationen  
 
-```bash
+### 📊 DuckDB Analytics Engine
+Leichte, performante SQL-Engine für analytische Abfragen.
+
+### 💬 Kontextbewusste Ergebnis-Erklärung
+Ergebnisse werden unter Berücksichtigung von:
+- der ursprünglichen Frage  
+- der generierten SQL-Abfrage  
+- dem Query-Ergebnis  
+
+in klarer, präziser Business-Sprache erklärt.
+
+### 🧱 Saubere Architektur
+Klare Trennung von:
+- NL → SQL Generierung  
+- SQL-Ausführung  
+- Ergebnis-Erklärung  
+- Konfiguration & Validierung  
+
+---
+
+## 🧠 Architekturübersicht
+
+```text
+User Question
+   ↓
+NL → SQL Chain (LLM)
+   ↓
+SQL Validation & Guardrails
+   ↓
+DuckDB Execution
+   ↓
+SQL Result
+   ↓
+Result Explanation Chain (LLM)
+   ↓
+Human-readable Business Explanation
+Design-Entscheidung:
+Für analytische Fragestellungen werden deterministische Chains verwendet statt autonomer Agenten, um Vorhersagbarkeit und Sicherheit zu gewährleisten.
+
+🚀 Installation
+1️⃣ Dependencies installieren
+bash
+Code kopieren
+pip install -r requirements.txt
+2️⃣ Datenbank initialisieren
+Demo-Datenbank:
+
+bash
+Code kopieren
+python db/init_db.py
+Realistische Analytics-Datenbank:
+
+bash
+Code kopieren
+python db/generate_data.py
+3️⃣ Umgebungsvariablen konfigurieren
+Erstelle eine .env Datei im Projektordner:
+
+env
+Code kopieren
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
+AZURE_OPENAI_API_KEY=your-api-key-here
+AZURE_OPENAI_DEPLOYMENT=your-deployment-name
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+Hinweis:
+AZURE_OPENAI_API_VERSION ist optional und verwendet standardmäßig
+2024-02-15-preview, falls nicht gesetzt.
+
+☁️ Azure OpenAI Setup
+Öffne das Azure Portal
+
+Erstelle eine Azure OpenAI Resource
+
+Erstelle ein Model Deployment (z. B. GPT-4 / GPT-4o)
+
+Notiere dir:
+
+Endpoint URL
+
+API Key
+
+Deployment Name
+
+API Version
+
+▶️ Verwendung
+bash
+Code kopieren
 python app.py
-```
+Beispiel-Fragen
+„Wie viel Umsatz wurde pro Region erzielt?“
 
-Beispiel-Fragen:
-- "Wie viel Umsatz wurde in der EU gemacht?"
-- "Zeige mir die Top 3 Produkte nach Umsatz"
-- "Was ist der Gesamtumsatz für Januar 2024?"
+„Welche Produkte generieren den höchsten Umsatz?“
 
-## Projektstruktur
+„Wie hat sich der Umsatz über die Zeit entwickelt?“
 
-```
+„Wer sind die Top-5-Kunden nach Bestellwert?“
+
+📁 Projektstruktur
+text
+Code kopieren
 nlq-to-sql/
-├── app.py                    # Hauptanwendung
+├── app.py                    # CLI Entry Point
 ├── chains/
-│   ├── nl_to_sql.py         # Natural Language → SQL Chain
-│   └── sql_to_text.py       # SQL Ergebnis → Text-Erklärung
+│   ├── nl_to_sql.py          # Natural Language → SQL
+│   └── sql_to_text.py        # SQL Result → Explanation
 ├── config/
-│   └── settings.py          # Konfiguration
+│   └── settings.py           # Azure & DB Configuration
 ├── db/
-│   ├── analytics.db         # DuckDB Datenbank
-│   └── init_db.py           # Datenbank-Initialisierung
+│   ├── analytics.db          # DuckDB Database
+│   ├── init_db.py            # Minimal Demo Dataset
+│   └── generate_data.py      # Large Synthetic Analytics Dataset
+├── prompts/
+│   ├── nl_to_sql.txt         # SQL Generation Prompt
+│   └── sql_to_text.txt       # Result Explanation Prompt
 ├── validation/
-│   └── sql_guard.py         # SQL-Validierung
-└── prompts/                 # Prompt-Templates
-```
+│   └── sql_guard.py          # SQL Safety & Validation
+└── README.md
+🛠️ Technologie-Stack
+Python 3.10+
 
-## Technologie-Stack
+LangChain – LLM-Orchestrierung
 
-- **LangChain**: LLM-Chain Orchestrierung
-- **Azure OpenAI**: GPT-Modelle für NL→SQL Konvertierung
-- **DuckDB**: In-Memory Analytics-Datenbank
-- **SQLParse**: SQL-Parsing und Validierung
+Azure OpenAI – Enterprise LLM Hosting
 
+DuckDB – Analytics-orientierte SQL Engine
+
+sqlparse – SQL Parsing & Validation
+
+faker – realistische synthetische Daten
+
+🔐 Sicherheit & Design-Prinzipien
+❌ keine Schreiboperationen auf der Datenbank
+
+🔍 explizite Trennung von:
+
+Business-Fragen
+
+Schema- / Metadaten-Fragen
+
+🧠 kontextreiche Prompts zur Vermeidung von Halluzinationen
+
+🧩 Architektur vorbereitet für:
+
+UI (Streamlit / FastAPI)
+
+andere SQL-Datenbanken (Postgres, Snowflake)
+
+👤 Autor
+Jacob Abb
