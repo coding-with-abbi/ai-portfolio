@@ -1,0 +1,12 @@
+langchain
+langchain-community
+langchain-openai
+langchain-core
+duckdb
+duckdb-engine
+sqlalchemy
+python-dotenv
+sqlparse
+faker
+
+
