@@ -1,0 +1,69 @@
+{
+    "workflow_info": {
+        "start_time": "2026-01-06T11:57:39.094815",
+        "duration": 23.53,
+        "total_cost": 0.11454,
+        "completion_rate": "100.0%"
+    },
+    "agents": {
+        "planner": {
+            "status": "pending",
+            "tokens": 452,
+            "errors": []
+        },
+        "executor": {
+            "status": "pending",
+            "tokens": 2255,
+            "errors": []
+        }
+    },
+    "tasks": [
+        {
+            "id": 1,
+            "description": "Search for information on BERT (Bidirectional Encoder Representations from Transformers)",
+            "tool_name": "web_search",
+            "status": "completed",
+            "timestamp": "2026-01-06T11:57:46.632589"
+        },
+        {
+            "id": 2,
+            "description": "Search for applications of BERT in natural language processing",
+            "tool_name": "web_search",
+            "status": "completed",
+            "timestamp": "2026-01-06T11:57:50.719833"
+        },
+        {
+            "id": 3,
+            "description": "Search for recent advancements or updates related to BERT",
+            "tool_name": "web_search",
+            "status": "completed",
+            "timestamp": "2026-01-06T11:57:56.104774"
+        },
+        {
+            "id": 4,
+            "description": "Write a report summarizing the findings on BERT",
+            "tool_name": "file_writer",
+            "status": "completed",
+            "timestamp": "2026-01-06T11:58:02.627348"
+        }
+    ],
+    "tools": {
+        "web_search": {
+            "calls": 3,
+            "success": 3,
+            "failures": 0,
+            "errors": []
+        },
+        "file_writer": {
+            "calls": 1,
+            "success": 1,
+            "failures": 0,
+            "errors": []
+        }
+    },
+    "token_usage": {
+        "prompt_tokens": 1596,
+        "completion_tokens": 1111,
+        "total_tokens": 2707
+    }
+}

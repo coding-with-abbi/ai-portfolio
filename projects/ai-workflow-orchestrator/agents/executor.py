@@ -6,6 +6,8 @@ from memory.state import Task
 from tools.web_search import get_web_search_tool
 from tools.file_writer import get_file_writer_tool
 from tools.python_runner import get_python_runner_tool
+from langchain_community.callbacks import get_openai_callback
+import time
 
 class ExecutorAgent:
     def __init__(self):
@@ -21,6 +23,7 @@ class ExecutorAgent:
             "file_writer": get_file_writer_tool(),
             "python_runner": get_python_runner_tool()
         }
+        self.monitor = None
 
     def refine_tool_input(self, task: Task, context: list[str]) -> dict:
         """Refines tool input using context from previous steps."""
@@ -52,28 +55,49 @@ class ExecutorAgent:
         prompt = ChatPromptTemplate.from_template(prompt_template)
         chain = prompt | self.llm | JsonOutputParser()
         try:
-            return chain.invoke({
-                "context": "\\n".join(context),
+            input_data = {
+                "context": "\n".join(context),
                 "description": task.description,
                 "tool_name": task.tool_name,
                 "tool_input": str(task.tool_input)
-            })
+            }
+            if self.monitor:
+                with get_openai_callback() as cb:
+                    result = chain.invoke(input_data)
+                    self.monitor.track_llm_usage("executor", {
+                        "prompt_tokens": cb.prompt_tokens,
+                        "completion_tokens": cb.completion_tokens,
+                        "total_tokens": cb.total_tokens
+                    })
+                return result
+                
+            return chain.invoke(input_data)
         except Exception as e:
             print(f"Refinement failed: {e}")
             return task.tool_input
 
-    def execute_task(self, task: Task, context_results: list[str]) -> str:
+    def execute_task(self, task: Task, context_results: list[str], monitor=None) -> str:
+        self.monitor = monitor
         tool = self.tools.get(task.tool_name)
         if not tool:
+            if monitor:
+                monitor.track_tool(task.tool_name, False, "Tool not found")
             return f"Error: Tool {task.tool_name} not found"
         
         refined_input = self.refine_tool_input(task, context_results)
         
+        start_time = time.time()
         try:
             if task.tool_name == "web_search":
                 query = refined_input.get("query") if isinstance(refined_input, dict) else refined_input
-                return tool.run(query)
+                result = tool.run(query)
             else:
-                return tool.run(refined_input)
+                result = tool.run(refined_input)
+            
+            if monitor:
+                monitor.track_tool(task.tool_name, True, latency=time.time()-start_time)
+            return result
         except Exception as e:
+            if monitor:
+                monitor.track_tool(task.tool_name, False, str(e), latency=time.time()-start_time)
             return f"Error executing tool: {e}"
