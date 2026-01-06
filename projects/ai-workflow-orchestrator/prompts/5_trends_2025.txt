@@ -1,0 +1,1 @@
+Identifiziere die Top 3 AI-Trends für 2025. Suche für jeden Trend ein konkretes Startup, das daran arbeitet. Erstelle ein Investoren-Memo names 'trends_2025.md' mit einer Bewertung des Potenzials.
