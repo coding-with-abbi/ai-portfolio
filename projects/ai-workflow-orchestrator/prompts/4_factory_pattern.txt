@@ -1,0 +1,1 @@
+Recherchiere das 'Factory Pattern' in Python. Schreibe basierend auf der Recherche eine funktionierende Python-Beispielimplementierung für eine Logistik-Software und speichere sie als 'factory_pattern.py'.
