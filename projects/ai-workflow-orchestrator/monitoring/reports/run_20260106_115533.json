@@ -1,0 +1,42 @@
+{
+    "workflow_info": {
+        "start_time": "2026-01-06T11:55:31.404348",
+        "duration": 2.44,
+        "total_cost": 0.010199999999999999,
+        "completion_rate": "100.0%"
+    },
+    "agents": {
+        "planner": {
+            "status": "pending",
+            "tokens": 288,
+            "errors": []
+        },
+        "executor": {
+            "status": "pending",
+            "tokens": 0,
+            "errors": []
+        }
+    },
+    "tasks": [
+        {
+            "id": 1,
+            "description": "Search for the color of a banana",
+            "tool_name": "web_search",
+            "status": "completed",
+            "timestamp": "2026-01-06T11:55:33.843070"
+        }
+    ],
+    "tools": {
+        "web_search": {
+            "calls": 1,
+            "success": 1,
+            "failures": 0,
+            "errors": []
+        }
+    },
+    "token_usage": {
+        "prompt_tokens": 236,
+        "completion_tokens": 52,
+        "total_tokens": 288
+    }
+}

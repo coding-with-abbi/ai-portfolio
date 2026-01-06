@@ -2,6 +2,7 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from config.settings import Settings
+from langchain_community.callbacks import get_openai_callback
 import json
 
 class PlannerAgent:
@@ -14,7 +15,7 @@ class PlannerAgent:
             temperature=0
         )
     
-    def create_plan(self, user_request: str) -> list:
+    def create_plan(self, user_request: str, monitor=None) -> list:
         # Prompt definition
         system_prompt = """
         You are a Planner Agent.
@@ -49,4 +50,15 @@ class PlannerAgent:
         ])
         
         chain = prompt | self.llm | JsonOutputParser()
+        
+        if monitor:
+            with get_openai_callback() as cb:
+                result = chain.invoke({"request": user_request})
+                monitor.track_llm_usage("planner", {
+                    "prompt_tokens": cb.prompt_tokens,
+                    "completion_tokens": cb.completion_tokens,
+                    "total_tokens": cb.total_tokens
+                })
+            return result
+            
         return chain.invoke({"request": user_request})
