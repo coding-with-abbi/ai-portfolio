@@ -1,0 +1,1 @@
+Wer ist der aktuelle CEO von OpenAI? Finde heraus, wo er davor gearbeitet hat. Suche dann nach dem Aktienkurs oder der Bewertung dieser vorherigen Firma. Schreibe eine Karriere-Zusammenfassung in 'ceo_profile.md'.

@@ -1,0 +1,6 @@
+# Framework Comparison
+| Feature | LangChain | Semantic Kernel |
+|---------|-----------|----------------|
+| Architecture | LangChain is part of the Agentic AI systems, which can autonomously plan and execute tasks using tools. It is associated with trends like Multi-Agent Systems (MAS) and Reflection patterns. | Semantic Kernel is also part of the Agentic AI systems, capable of autonomously planning and executing tasks using tools, and is linked with trends such as Multi-Agent Systems (MAS) and Reflection patterns. |
+| Advantages | LangChain is a key framework in the Agentic AI ecosystem, supporting autonomous task execution and planning. | Semantic Kernel is a significant framework within the Agentic AI ecosystem, facilitating autonomous task execution and planning. |
+| Disadvantages | Challenges associated with LangChain include potential infinite loops, cost implications, and safety concerns. | Semantic Kernel faces similar challenges, including the risk of infinite loops, cost issues, and safety concerns. |

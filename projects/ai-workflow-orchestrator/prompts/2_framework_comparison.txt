@@ -1,0 +1,1 @@
+Vergleiche 'LangChain' und 'Semantic Kernel'. Suche nach Architektur, Vor- und Nachteilen für beide Frameworks im Detail. Erstelle eine strukturierte Vergleichstabelle in 'framework_comparison.md'.
