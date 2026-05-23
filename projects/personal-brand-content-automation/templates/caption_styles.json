@@ -1,0 +1,72 @@
+{
+    "listicle": {
+        "description": "Numbered list format - highest save rate",
+        "hook_patterns": [
+            "{number} {topic} die dir {benefit}:",
+            "Diese {number} {topic} verändern alles:",
+            "Hier sind {number} {topic} die du kennen musst:",
+            "{number} {topic} für {audience} ({year}):"
+        ],
+        "cta_patterns": [
+            "Speichere diesen Post für später",
+            "Welches Tool nutzt du schon? Kommentiere!",
+            "Teile das mit jemandem der es braucht"
+        ]
+    },
+    "educational": {
+        "description": "Step-by-step or how-to format",
+        "hook_patterns": [
+            "So nutzt du {tool} richtig:",
+            "Die meisten machen {thing} falsch. Hier ist warum:",
+            "{topic} erklärt in {time}:",
+            "Der ultimative Guide zu {topic}:"
+        ],
+        "cta_patterns": [
+            "Folge für mehr solche Tipps",
+            "Speichere dir das für später",
+            "Welchen Schritt probierst du zuerst?"
+        ]
+    },
+    "motivational": {
+        "description": "Quote-based or inspirational",
+        "hook_patterns": [
+            "{person} hat gesagt:",
+            "Die Wahrheit über {topic} die niemand hören will:",
+            "Ich hätte mir das vor {time} gewünscht:",
+            "Der Grund warum {number}% scheitern:"
+        ],
+        "cta_patterns": [
+            "Wer stimmt zu?",
+            "Folge für tägliche Inspiration",
+            "Tag someone who needs to hear this"
+        ]
+    },
+    "controversial": {
+        "description": "Hot take or unpopular opinion - highest comment rate",
+        "hook_patterns": [
+            "Unpopular Opinion: {statement}",
+            "Das will niemand hören, aber {statement}",
+            "Hört auf mit {thing}. Es funktioniert nicht.",
+            "Alle reden über {topic}. Keiner redet über {real_issue}."
+        ],
+        "cta_patterns": [
+            "Stimmt ihr zu oder bin ich falsch? Kommentiert.",
+            "Change my mind.",
+            "Was ist eure Meinung?"
+        ]
+    },
+    "storytelling": {
+        "description": "Personal story or case study",
+        "hook_patterns": [
+            "Vor {time} habe ich {thing} gemacht. Das ist passiert:",
+            "Ich habe {number} {thing} getestet. Hier ist mein Fazit:",
+            "Was ich in {time} über {topic} gelernt habe:",
+            "Der größte Fehler den ich bei {topic} gemacht habe:"
+        ],
+        "cta_patterns": [
+            "Was ist eure Erfahrung damit?",
+            "Folge für mehr Behind-the-Scenes",
+            "Speichere das für später"
+        ]
+    }
+}

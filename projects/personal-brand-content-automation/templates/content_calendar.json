@@ -1,0 +1,73 @@
+{
+    "weekly_template": {
+        "monday": {
+            "platforms": ["instagram", "tiktok"],
+            "format": "carousel",
+            "pillar": "expertise",
+            "posting_time": "18:00"
+        },
+        "tuesday": {
+            "platforms": ["linkedin", "x"],
+            "format": "text_post",
+            "pillar": "opinion",
+            "posting_time": "08:30"
+        },
+        "wednesday": {
+            "platforms": ["instagram", "tiktok", "youtube"],
+            "format": "reel",
+            "pillar": "expertise",
+            "posting_time": "12:00"
+        },
+        "thursday": {
+            "platforms": ["linkedin", "x"],
+            "format": "thread",
+            "pillar": "expertise",
+            "posting_time": "08:30"
+        },
+        "friday": {
+            "platforms": ["instagram", "tiktok"],
+            "format": "reel",
+            "pillar": "story",
+            "posting_time": "17:00"
+        },
+        "saturday": {
+            "platforms": ["instagram", "tiktok", "youtube"],
+            "format": "carousel",
+            "pillar": "opinion",
+            "posting_time": "10:00"
+        },
+        "sunday": {
+            "platforms": ["instagram", "tiktok"],
+            "format": "reel",
+            "pillar": "motivational",
+            "posting_time": "11:00"
+        }
+    },
+    "stream_b_daily": {
+        "ki_tipps": {
+            "posts_per_day": 1,
+            "formats": ["carousel", "reel"],
+            "platforms": ["instagram", "tiktok"]
+        },
+        "finance": {
+            "posts_per_day": 1,
+            "formats": ["carousel", "reel"],
+            "platforms": ["tiktok", "youtube"]
+        },
+        "ki_girls": {
+            "posts_per_day": 1,
+            "formats": ["post", "reel"],
+            "platforms": ["instagram", "tiktok"]
+        },
+        "motivation": {
+            "posts_per_day": 1,
+            "formats": ["reel", "carousel"],
+            "platforms": ["instagram", "tiktok"]
+        },
+        "edutainment": {
+            "posts_per_day": 1,
+            "formats": ["reel"],
+            "platforms": ["tiktok", "youtube"]
+        }
+    }
+}
