@@ -3,6 +3,10 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "ms-365": {
+      "command": "npx",
+      "args": ["-y", "@softeria/ms-365-mcp-server@latest"]
     }
   }
 }
