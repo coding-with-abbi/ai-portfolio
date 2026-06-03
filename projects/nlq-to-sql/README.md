@@ -1,181 +1,108 @@
-# 🧠 NLQ-to-SQL  
-### Natural Language Query to SQL Analytics System
+# nlq-to-sql
 
-Ein **produktionsnahes Analytics-System**, das Fragen in natürlicher Sprache in **sichere SQL-Abfragen** übersetzt, diese auf einer relationalen Datenbank ausführt und die Ergebnisse **kontextbewusst in verständlicher Business-Sprache erklärt**.
+Natural-language analytics that turns business questions into validated SQL, runs them against a relational database, and explains the result in plain business language.
 
-Das Projekt zeigt, wie **Large Language Models (LLMs)** verantwortungsvoll und strukturiert in **Data-Analytics-Workflows** integriert werden können – mit Fokus auf **Architektur, Sicherheit und Nachvollziehbarkeit**.
+## Problem
 
----
+LLM "chat-with-your-data" demos break in production:
+- generated SQL writes to the database
+- no schema grounding — hallucinated columns, runaway queries
+- raw result tables, no business interpretation
 
-## 🎯 Ziel des Projekts
+## Solution
 
-Viele LLM-Demos bleiben bei einfachen Prompt-Beispielen stehen.  
-Dieses Projekt geht bewusst einen Schritt weiter und demonstriert:
+Deterministic pipeline that constrains the LLM to one validated step at a time:
 
-- ✅ deterministische **NL → SQL** Generierung  
-- ✅ saubere Trennung von Verantwortlichkeiten  
-- ✅ sichere Datenbankinteraktion  
-- ✅ **erklärbare Ergebnisse** statt reiner Zahlen  
+1. **NL → SQL chain** with schema-grounded prompt
+2. **Guardrail layer** — SELECT-only, statement-count, row limits, no DDL
+3. **DuckDB execution** — fast analytical engine, no production DB required
+4. **Result → text chain** — explains the answer using the question, the SQL, and the result rows
 
----
+## Architecture
 
-## ✨ Features
+```
+question
+   │
+   ▼
+NL → SQL chain ──► sqlparse validator ──► reject if not SELECT
+   │
+   ▼ valid SQL
+DuckDB execution
+   │
+   ▼ result rows
+Result → text chain (question + sql + rows)
+   │
+   ▼
+business explanation
+```
 
-### 🤖 Natural Language → SQL
-Übersetzt Business-Fragen zuverlässig in SQL-Abfragen.
+## Stack
 
-### 🔒 SQL-Validierung & Guardrails
-- nur `SELECT` Statements erlaubt  
-- automatische Query-Limits  
-- Schutz vor unerwünschten Operationen  
+Python 3.11 · LangChain · Azure OpenAI (GPT-4o) · DuckDB · sqlparse · Faker (synthetic data)
 
-### 📊 DuckDB Analytics Engine
-Leichte, performante SQL-Engine für analytische Abfragen.
+## Results
 
-### 💬 Kontextbewusste Ergebnis-Erklärung
-Ergebnisse werden unter Berücksichtigung von:
-- der ursprünglichen Frage  
-- der generierten SQL-Abfrage  
-- dem Query-Ergebnis  
+- SELECT-only enforcement: <METRIK> of non-SELECT statements correctly rejected
+- Query latency: <METRIK> p50 / <METRIK> p95
+- Cost per question: <METRIK> USD (NL→SQL + execution + result explanation)
+- Test corpus: <METRIK> business questions across <METRIK> tables
 
-in klarer, präziser Business-Sprache erklärt.
+## Run
 
-### 🧱 Saubere Architektur
-Klare Trennung von:
-- NL → SQL Generierung  
-- SQL-Ausführung  
-- Ergebnis-Erklärung  
-- Konfiguration & Validierung  
-
----
-
-## 🧠 Architekturübersicht
-
-```text
-User Question
-   ↓
-NL → SQL Chain (LLM)
-   ↓
-SQL Validation & Guardrails
-   ↓
-DuckDB Execution
-   ↓
-SQL Result
-   ↓
-Result Explanation Chain (LLM)
-   ↓
-Human-readable Business Explanation
-Design-Entscheidung:
-Für analytische Fragestellungen werden deterministische Chains verwendet statt autonomer Agenten, um Vorhersagbarkeit und Sicherheit zu gewährleisten.
-
-🚀 Installation
-1️⃣ Dependencies installieren
-bash
-Code kopieren
+```bash
 pip install -r requirements.txt
-2️⃣ Datenbank initialisieren
-Demo-Datenbank:
 
-bash
-Code kopieren
+# Initialise a minimal demo database
 python db/init_db.py
-Realistische Analytics-Datenbank:
 
-bash
-Code kopieren
+# Or generate a larger synthetic analytics dataset
 python db/generate_data.py
-3️⃣ Umgebungsvariablen konfigurieren
-Erstelle eine .env Datei im Projektordner:
 
-env
-Code kopieren
-AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
-AZURE_OPENAI_API_KEY=your-api-key-here
-AZURE_OPENAI_DEPLOYMENT=your-deployment-name
-AZURE_OPENAI_API_VERSION=2024-02-15-preview
-Hinweis:
-AZURE_OPENAI_API_VERSION ist optional und verwendet standardmäßig
-2024-02-15-preview, falls nicht gesetzt.
+# Configure Azure OpenAI credentials
+cp .env.example .env  # then fill in the values
 
-☁️ Azure OpenAI Setup
-Öffne das Azure Portal
-
-Erstelle eine Azure OpenAI Resource
-
-Erstelle ein Model Deployment (z. B. GPT-4 / GPT-4o)
-
-Notiere dir:
-
-Endpoint URL
-
-API Key
-
-Deployment Name
-
-API Version
-
-▶️ Verwendung
-bash
-Code kopieren
 python app.py
-Beispiel-Fragen
-„Wie viel Umsatz wurde pro Region erzielt?“
+```
 
-„Welche Produkte generieren den höchsten Umsatz?“
+### Required environment variables
 
-„Wie hat sich der Umsatz über die Zeit entwickelt?“
+```env
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
+AZURE_OPENAI_API_KEY=<your-api-key>
+AZURE_OPENAI_DEPLOYMENT=<your-deployment-name>
+AZURE_OPENAI_API_VERSION=2024-02-15-preview  # optional, default shown
+```
 
-„Wer sind die Top-5-Kunden nach Bestellwert?“
+### Example questions
 
-📁 Projektstruktur
-text
-Code kopieren
+- "What is the revenue per region?"
+- "Which products generate the highest revenue?"
+- "Who are the top 5 customers by order value?"
+- "How did revenue evolve over time?"
+
+## Project structure
+
+```
 nlq-to-sql/
-├── app.py                    # CLI Entry Point
+├── app.py                  # CLI entry point
 ├── chains/
-│   ├── nl_to_sql.py          # Natural Language → SQL
-│   └── sql_to_text.py        # SQL Result → Explanation
+│   ├── nl_to_sql.py        # NL → SQL chain
+│   └── sql_to_text.py      # SQL result → explanation
 ├── config/
-│   └── settings.py           # Azure & DB Configuration
+│   └── settings.py
 ├── db/
-│   ├── analytics.db          # DuckDB Database
-│   ├── init_db.py            # Minimal Demo Dataset
-│   └── generate_data.py      # Large Synthetic Analytics Dataset
+│   ├── analytics.db        # DuckDB database
+│   ├── init_db.py          # minimal demo dataset
+│   └── generate_data.py    # synthetic analytics dataset
 ├── prompts/
-│   ├── nl_to_sql.txt         # SQL Generation Prompt
-│   └── sql_to_text.txt       # Result Explanation Prompt
-├── validation/
-│   └── sql_guard.py          # SQL Safety & Validation
-└── README.md
-🛠️ Technologie-Stack
-Python 3.10+
+│   ├── nl_to_sql.txt
+│   └── sql_to_text.txt
+└── validation/
+    └── sql_guard.py        # SELECT-only validator
+```
 
-LangChain – LLM-Orchestrierung
+## Design choices
 
-Azure OpenAI – Enterprise LLM Hosting
-
-DuckDB – Analytics-orientierte SQL Engine
-
-sqlparse – SQL Parsing & Validation
-
-faker – realistische synthetische Daten
-
-🔐 Sicherheit & Design-Prinzipien
-❌ keine Schreiboperationen auf der Datenbank
-
-🔍 explizite Trennung von:
-
-Business-Fragen
-
-Schema- / Metadaten-Fragen
-
-🧠 kontextreiche Prompts zur Vermeidung von Halluzinationen
-
-🧩 Architektur vorbereitet für:
-
-UI (Streamlit / FastAPI)
-
-andere SQL-Datenbanken (Postgres, Snowflake)
-
-👤 Autor
-Jacob Abb
+- **Deterministic chains, not autonomous agents** — analytical Q&A needs predictable behavior, not exploration loops.
+- **DuckDB instead of Postgres in the demo** — analytical engine, zero setup, drop-in replaceable with Postgres / Snowflake.
+- **Result explanation is its own chain** — keeps the SQL prompt focused; the explanation prompt can be tuned per audience (analyst vs. executive).
