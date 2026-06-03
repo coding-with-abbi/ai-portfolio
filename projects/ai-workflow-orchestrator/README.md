@@ -1,99 +1,102 @@
-# AI Workflow Orchestrator
+# ai-workflow-orchestrator
 
-A modular system for orchestrating AI agents to plan and execute tasks using various tools.
+Agentic workflow runner that separates planning from execution. A planner LLM generates a structured task list; an executor refines tool inputs with prior-step context before each tool call.
 
-## 🧠 Wie es funktioniert (Deep Dive)
+## Problem
 
-Dieses System ist nicht nur eine einfache "Chain", sondern ein **Agentic Workflow**, der `Planung` von `Ausführung` trennt und `Kontext` intelligent nutzt.
+Single-shot agentic loops (planner = executor = same LLM call) lose information between steps. Tools end up being called with abstract, planner-stage arguments ("write summary of findings") even when the actual content from prior steps is what's needed.
 
-### 🏗️ Architektur
+## Solution
+
+Two-phase orchestration with an explicit refinement step:
+
+1. **Planner** — generates a static `Plan` of `Task`s with tool, intent, and placeholder inputs
+2. **Workflow runner** — iterates through tasks, accumulates results in `State`
+3. **Executor** — before running a tool, checks if the task needs context. If yes, calls the LLM again to refine the placeholder input using prior-step results
+4. **Tools** — web search, Python runner, file writer. All side effects go through them.
+
+## Architecture
+
 ```mermaid
 graph TD
     User[User Input] --> App(app.py)
     App --> Runner(WorkflowRunner)
-    
-    subgraph Orchester [Workflow Orchestration]
+
+    subgraph Orchestration
         Runner -->|1. Request| Planner(Planner Agent)
-        Planner -->|2. JSON Plan| State(Workflow State)
-        
+        Planner -->|2. Plan JSON| State(Workflow State)
         State -->|3. Next Task| Executor(Executor Agent)
-        
-        subgraph Execution Loop
-            Executor -->|4. Refine Input| ContextLLM(Context Awareness)
-            State -.->|Previous Results| ContextLLM
-            ContextLLM -->|5. Synthesized Args| Tools(WebSearch / FileWriter)
+
+        subgraph "Execution loop"
+            Executor -->|4. Refine input| ContextLLM(Refinement LLM call)
+            State -.->|prior results| ContextLLM
+            ContextLLM -->|5. Concrete args| Tools(WebSearch / PythonRunner / FileWriter)
             Tools -->|6. Result| State
         end
     end
-    
-    State -->|7. Final Artifact| Disk[(File System)]
+
+    State -->|7. Final artifacts| Disk[(Filesystem)]
 ```
 
-### 🔄 Der Ablauf (Step-by-Step)
+## Stack
 
-1.  **Entry Point (`app.py`)**:
-    *   Nimmt den CLI-Command entgegen (z.B. "Research AI").
-    *   Initialisiert den `WorkflowRunner`.
+Python 3.11 · Azure OpenAI · Pydantic · DuckDuckGo Search (with fallback) · LLM-based input refinement
 
-2.  **Planning Phase (`agents/planner.py`)**:
-    *   Der Planner nutzt ein **Azure OpenAI Modell** mit einem strict System Prompt.
-    *   Er zerlegt die Anfrage in logische Schritte (Tasks).
-    *   **Besonderheit**: Er generiert nur *Platzhalter-Inputs* (z.B. "Write summary of findings"), kocht aber noch nicht den eigentlichen Text, da die Infos noch fehlen.
+## Results
 
-3.  **Execution Loop (`workflows/workflow_runner.py`)**:
-    *   Der Runner iteriert durch die Tasks.
-    *   Er sammelt die **Ergebnisse aller vorherigen Schritte** (`context`).
+- End-to-end success rate on benchmark prompts: <METRIK>
+- Tool-input quality (manual rating) before vs. after refinement: <METRIK>
+- Average tokens per workflow run: <METRIK>
+- Average cost per workflow run: <METRIK> USD
 
-4.  **Refinement & Action (`agents/executor.py`)**:
-    *   Hier passiert die Magie. Bevor ein Tool ausgeführt wird, prüft der Executor:
-        *   *"Braucht dieses Tool Kontext?"* (z.B. `file_writer`).
-    *   Falls ja, ruft er einen **internen LLM-Call** (`refine_tool_input`):
-        *   Prompt: *"Hier sind die Suchergebnisse aus Schritt 1-3. Hier ist der Auftrag 'Schreibe Bericht'. Generiere den INHALT für die Datei."*
-    *   Das LLM transformiert den abstrakten Plan in konkrete Tool-Argumente (Dateiname + echter Inhalt).
+## Run
 
-5.  **Tooling (`tools/`)**:
-    *   **Web Search**: Nutzt DuckDuckGo (oder einen Mock-Fallback bei Import-Fehlern), um Daten zu beschaffen.
-    *   **File Writer**: Schreibt das vom LLM generierte Ergebnis auf die Festplatte.
+```bash
+pip install -r requirements.txt
+cp .env.example .env  # fill in Azure OpenAI keys
+python app.py "your task here"
+```
 
-## 📂 Struktur
+### Example prompts
 
-- **`app.py`**: Der "Knopf", den man drückt.
-- **`workflows/workflow_runner.py`**: Der Dirigent. Hält den Status (`State`) und koordiniert Planner und Executor.
-- **`agents/planner.py`**: Der Architekt. Denkt sich den Plan aus.
-- **`agents/executor.py`**: Der Handwerker. Führt Tools aus und verfeinert Inputs (`Refinement`).
-- **`memory/state.py`**: Das Gedächtnis. Pydantic Models für `Plan`, `Task`, `Result`.
-- **`tools/`**: Die Werkzeugkiste (Search, File IO, Python).
-- **`config/`**: Verwaltet API Keys und Settings.
+1. **Full stack** (search + calc + write)
+   > "Find the GDP of Germany and Japan for 2023. Compute the difference and the ratio in Python. Write a brief report to `economy_stats.md`."
 
-## 🚀 How to Run
+2. **Deep compare** (multi-step synthesis)
+   > "Compare LangChain and Semantic Kernel. Search for architecture, pros, and cons of each. Produce a structured comparison table in `framework_comparison.md`."
 
-1.  **Dependencies installieren**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-2.  **Environment Config**:
-    Kopiere die `.env` und trage deine Azure OpenAI Keys ein.
-3.  **Starten**:
-    ```bash
-    python app.py "Dein Task hier..."
-    ```
+3. **Trace & investigate** (dependency chaining)
+   > "Who is the current CEO of OpenAI? Find where they worked before. Look up that previous company's valuation. Write a career summary to `ceo_profile.md`."
 
-### 💡 Beispiel-Szenarien (Prompts)
+4. **Research → code**
+   > "Research the Factory Pattern in Python. Based on the research, write a working example implementation for a logistics application and save it as `factory_pattern.py`."
 
-Hier sind einige Queries, die zeigen, was das System kann:
+5. **Trend scout** (broad search + aggregation)
+   > "Identify the top 3 AI trends for 2025. For each, find a startup working on it. Produce an investor memo `trends_2025.md` with a potential assessment."
 
-#### 1. Der "Full Stack" Test (Search + Calc + Write)
-> "Finde das aktuelle Bruttoinlandsprodukt (BIP) von Deutschland und Japan für 2023. Nutze Python, um die Differenz und das Verhältnis in Prozent zu berechnen. Schreibe einen kurzen Bericht mit den Zahlen in 'economy_stats.md'."
+## Project structure
 
-#### 2. Der "Deep Compare" (Multi-Step Synthesis)
-> "Vergleiche 'LangChain' und 'Semantic Kernel'. Suche nach Architektur, Vor- und Nachteilen für beide Frameworks im Detail. Erstelle eine strukturierte Vergleichstabelle in 'framework_comparison.md'."
+```
+ai-workflow-orchestrator/
+├── app.py                       # CLI entry
+├── workflows/
+│   └── workflow_runner.py       # State machine + iteration
+├── agents/
+│   ├── planner.py               # Generates Plan + Tasks
+│   └── executor.py              # Refines tool inputs, calls tools
+├── memory/
+│   └── state.py                 # Pydantic models: Plan, Task, Result
+├── tools/
+│   ├── web_search.py            # DuckDuckGo + mock fallback
+│   ├── python_runner.py
+│   └── file_writer.py
+├── monitoring/                  # Per-run JSON report
+├── config/
+└── results/                     # Output artifacts
+```
 
-#### 3. Der "Trace & Investigate" (Dependency Chaining)
-> "Wer ist der aktuelle CEO von OpenAI? Finde heraus, wo er davor gearbeitet hat. Suche dann nach dem Aktienkurs oder der Bewertung dieser vorherigen Firma. Schreibe eine Karriere-Zusammenfassung in 'ceo_profile.md'."
+## Design choices
 
-#### 4. Der "Coding Architect" (Technical Research to Code)
-> "Recherchiere das 'Factory Pattern' in Python. Schreibe basierend auf der Recherche eine funktionierende Python-Beispielimplementierung für eine Logistik-Software und speichere sie als 'factory_pattern.py'."
-
-#### 5. Der "Trend Scout" (Broad Search & Aggregation)
-> "Identifiziere die Top 3 AI-Trends für 2025. Suche für jeden Trend ein konkretes Startup, das daran arbeitet. Erstelle ein Investoren-Memo names 'trends_2025.md' mit einer Bewertung des Potenzials."
-
+- **Two LLM calls per task** — once at plan time (cheap), once at refinement time (richer context). Avoids losing prior-step data.
+- **State as a single source of truth** — every refinement can ask for any prior result without re-reading the filesystem.
+- **Tools are pure** — they take fully-resolved arguments. No tool ever decides what to do based on stale plan data.
