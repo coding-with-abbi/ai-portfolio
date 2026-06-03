@@ -3,12 +3,12 @@
 ## Problem
 Der "Target URI" aus Azure AI Studio ist im Format:
 ```
-https://lueddemanninvestments-resource.services.ai.azure.com/...
+https://your-resource-name.services.ai.azure.com/...
 ```
 
 Aber LangChain benötigt den klassischen OpenAI-Endpoint:
 ```
-https://lueddemanninvestments-resource.openai.azure.com
+https://your-resource-name.openai.azure.com
 ```
 
 ## Lösung: Endpoint im Azure Portal finden
@@ -17,7 +17,7 @@ https://lueddemanninvestments-resource.openai.azure.com
 
 2. **Navigieren Sie zu Ihrer Azure OpenAI Resource**:
    - Suchen Sie nach "Azure OpenAI" im Suchfeld
-   - Wählen Sie Ihre Resource aus (z.B. "lueddemanninvestments-resource")
+   - Wählen Sie Ihre Resource aus (z.B. "your-resource-name")
 
 3. **Öffnen Sie "Keys and Endpoint"**:
    - Im linken Menü unter "Resource Management"
@@ -26,7 +26,7 @@ https://lueddemanninvestments-resource.openai.azure.com
 4. **Kopieren Sie den Endpoint**:
    - Sie sehen einen "Endpoint" (nicht "Target URI")
    - Format: `https://[resource-name].openai.azure.com`
-   - Beispiel: `https://lueddemanninvestments-resource.openai.azure.com`
+   - Beispiel: `https://your-resource-name.openai.azure.com`
 
 5. **Kopieren Sie den API Key**:
    - Key 1 oder Key 2 (beide funktionieren)
@@ -34,8 +34,8 @@ https://lueddemanninvestments-resource.openai.azure.com
 ## Ihre .env Datei sollte so aussehen:
 
 ```env
-AZURE_OPENAI_ENDPOINT=https://lueddemanninvestments-resource.openai.azure.com
-AZURE_OPENAI_API_KEY=1vjYDIG5fv2Sc9hbcRl4... (Ihr vollständiger Key)
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
+AZURE_OPENAI_API_KEY=<your-api-key>
 AZURE_OPENAI_DEPLOYMENT=gpt-5.1-chat
 AZURE_OPENAI_API_VERSION=2024-02-15-preview
 ```
@@ -49,9 +49,9 @@ AZURE_OPENAI_API_VERSION=2024-02-15-preview
 
 Falls Sie nur den Target URI haben, können Sie versuchen, den Resource-Namen zu extrahieren:
 
-1. Nehmen Sie den Target URI: `https://lueddemanninvestments-resource.services.ai.azure.com/...`
-2. Extrahieren Sie den Resource-Namen: `lueddemanninvestments-resource`
-3. Erstellen Sie den klassischen Endpoint: `https://lueddemanninvestments-resource.openai.azure.com`
+1. Nehmen Sie den Target URI: `https://your-resource-name.services.ai.azure.com/...`
+2. Extrahieren Sie den Resource-Namen: `your-resource-name`
+3. Erstellen Sie den klassischen Endpoint: `https://your-resource-name.openai.azure.com`
 
 Die automatische Konvertierung im Code sollte das bereits tun, aber es ist besser, den korrekten Endpoint direkt aus dem Azure Portal zu verwenden.
 
