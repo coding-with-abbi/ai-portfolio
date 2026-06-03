@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI System Hub - Monitoring Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metrics-table {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-rag { background: #d4edda; color: #155724; }
+        .badge-agent { background: #fff3cd; color: #856404; }
+        .badge-direct { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI System Hub</h1>
+            <p>Real-time monitoring dashboard</p>
+        </header>
+        
+        <div class="summary">
+            <div class="card">
+                <h3>Total Requests</h3>
+                <div class="value">{{ total_requests }}</div>
+            </div>
+            <div class="card">
+                <h3>Total Cost</h3>
+                <div class="value">${{ "%.4f"|format(total_cost) }}</div>
+            </div>
+            <div class="card">
+                <h3>Avg Latency</h3>
+                <div class="value">{{ "%.0f"|format(avg_latency) }}ms</div>
+            </div>
+        </div>
+        
+        <div class="metrics-table">
+            <h2 style="margin-bottom: 20px;">Detailed Metrics</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Query Type + Model</th>
+                        <th>Requests</th>
+                        <th>Avg Latency</th>
+                        <th>Total Tokens</th>
+                        <th>Total Cost</th>
+                        <th>Avg Cost/Request</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, data in metrics.items() %}
+                    <tr>
+                        <td>
+                            {% if 'rag' in key %}
+                            <span class="badge badge-rag">RAG</span>
+                            {% elif 'agent' in key %}
+                            <span class="badge badge-agent">AGENT</span>
+                            {% else %}
+                            <span class="badge badge-direct">DIRECT</span>
+                            {% endif %}
+                            {{ key.split('_')[-1] if '_' in key else key }}
+                        </td>
+                        <td>{{ data.total_requests }}</td>
+                        <td>{{ "%.2f"|format(data.avg_latency_ms) }} ms</td>
+                        <td>{{ data.total_tokens }}</td>
+                        <td>${{ "%.4f"|format(data.total_cost_usd) }}</td>
+                        <td>${{ "%.4f"|format(data.avg_cost_per_request) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh every 10 seconds
+        setTimeout(() => location.reload(), 10000);
+    </script>
+</body>
+</html>
